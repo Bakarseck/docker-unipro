@@ -1,7 +1,6 @@
 "use client"
 
 import { use, useState } from "react"
-import { useRouter } from "next/navigation"
 import { Header } from "@/components/quiz/header"
 import { QuizPlayer } from "@/components/quiz/quiz-player"
 import { QuizResults } from "@/components/quiz/quiz-results"
@@ -15,12 +14,47 @@ import { useAuth } from "@/lib/auth-context"
 import { saveScore } from "@/lib/leaderboard"
 
 function QuizPageContent({ quizId }: { quizId: string }) {
-  const router = useRouter()
   const { quizData } = useQuiz()
-  const { user } = useAuth()
+  const { user, isLoading: authLoading } = useAuth()
   const [result, setResult] = useState<QuizResult | null>(null)
 
   const quiz = quizData.quizzes.find((q) => q.id === quizId)
+  const authRedirect = `/auth?redirect=${encodeURIComponent(`/quiz/${quizId}`)}`
+
+  if (authLoading) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+        <p className="text-muted-foreground">Vérification de votre session…</p>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-12">
+        <Empty className="py-12">
+          <EmptyMedia variant="icon">
+            <BookOpen className="h-6 w-6" />
+          </EmptyMedia>
+          <EmptyTitle>Connexion requise</EmptyTitle>
+          <EmptyDescription>
+            Pour lancer ce quizz, connectez-vous ou créez un compte avec votre e-mail et votre mot de passe.
+          </EmptyDescription>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <Link href={authRedirect}>
+              <Button className="gap-2">Se connecter ou s&apos;inscrire</Button>
+            </Link>
+            <Link href="/">
+              <Button variant="outline" className="gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Retour à l&apos;accueil
+              </Button>
+            </Link>
+          </div>
+        </Empty>
+      </div>
+    )
+  }
 
   if (!quiz) {
     return (
