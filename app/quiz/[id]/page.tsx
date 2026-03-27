@@ -11,10 +11,13 @@ import { Empty, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui
 import { ArrowLeft, BookOpen } from "lucide-react"
 import Link from "next/link"
 import type { QuizResult } from "@/lib/quiz-types"
+import { useAuth } from "@/lib/auth-context"
+import { saveScore } from "@/lib/leaderboard"
 
 function QuizPageContent({ quizId }: { quizId: string }) {
   const router = useRouter()
   const { quizData } = useQuiz()
+  const { user } = useAuth()
   const [result, setResult] = useState<QuizResult | null>(null)
 
   const quiz = quizData.quizzes.find((q) => q.id === quizId)
@@ -63,8 +66,24 @@ function QuizPageContent({ quizId }: { quizId: string }) {
     )
   }
 
-  const handleComplete = (quizResult: QuizResult) => {
+  const handleComplete = async (quizResult: QuizResult) => {
     setResult(quizResult)
+
+    if (!user?.email) {
+      return
+    }
+
+    try {
+      await saveScore({
+        userEmail: user.email,
+        quizId: quizResult.quiz.id,
+        quizTitle: quizResult.quiz.title,
+        score: quizResult.score,
+        totalQuestions: quizResult.totalQuestions,
+      })
+    } catch {
+      console.error("Failed to save score in leaderboard")
+    }
   }
 
   const handleRestart = () => {

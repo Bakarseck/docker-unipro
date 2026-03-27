@@ -2,6 +2,7 @@
 
 import { Header } from "@/components/quiz/header"
 import { QuizList } from "@/components/quiz/quiz-list"
+import { Leaderboard } from "@/components/quiz/leaderboard"
 import { QuizProvider } from "@/lib/quiz-context"
 import { Container, FileText, Download, Eye } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
@@ -81,6 +82,10 @@ export default function HomePage() {
               </div>
             </div>
             <QuizList />
+          </section>
+
+          <section className="mt-10">
+            <Leaderboard />
           </section>
         </main>
 

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
+import Link from "next/link"
 import { QuizProvider, useQuiz } from "@/lib/quiz-context"
 import { AdminLayout } from "@/components/admin/admin-layout"
 import { QuizManager } from "@/components/admin/quiz-manager"
@@ -25,8 +26,15 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 import type { Quiz } from "@/lib/quiz-types"
+import { Header } from "@/components/quiz/header"
+
+const ADMIN_EMAIL = "seck.bakar@ugb.edu.sn"
+const ADMIN_PASSWORD = "ababacar"
 
 function AdminContent() {
   const { exportData, importData, resetToDefault } = useQuiz()
@@ -184,6 +192,68 @@ function AdminContent() {
 }
 
 export default function AdminPage() {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [isAdminAllowed, setIsAdminAllowed] = useState(false)
+  const [error, setError] = useState("")
+
+  const handleAdminLogin = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      setIsAdminAllowed(true)
+      setError("")
+      return
+    }
+    setError("Identifiants admin invalides.")
+  }
+
+  if (!isAdminAllowed) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="mx-auto flex max-w-md px-4 py-10">
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle>Acces administration</CardTitle>
+              <CardDescription>Seul l&apos;email/mot de passe admin peut acceder a cette page.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleAdminLogin} className="space-y-3">
+                <div className="space-y-1">
+                  <Label htmlFor="admin-email">Email admin</Label>
+                  <Input
+                    id="admin-email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="admin-password">Mot de passe admin</Label>
+                  <Input
+                    id="admin-password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+                {error ? <p className="text-sm text-destructive">{error}</p> : null}
+                <Button type="submit" className="w-full">
+                  Entrer dans l&apos;admin
+                </Button>
+              </form>
+              <Link href="/" className="mt-4 block text-sm underline underline-offset-4">
+                Retour a l&apos;accueil
+              </Link>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    )
+  }
+
   return (
     <QuizProvider>
       <AdminContent />
