@@ -32,6 +32,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner"
 import type { Quiz } from "@/lib/quiz-types"
 import { Header } from "@/components/quiz/header"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { AdminDashboard } from "@/components/admin/admin-dashboard"
+import { LayoutDashboard, Library } from "lucide-react"
 
 const ADMIN_EMAIL = "seck.bakar@ugb.edu.sn"
 const ADMIN_PASSWORD = "ababacar"
@@ -103,11 +106,28 @@ function AdminContent() {
         onImport={handleImport}
         onReset={handleReset}
       >
-        {selectedQuiz ? (
-          <QuestionManager quiz={selectedQuiz} onBack={() => setSelectedQuiz(null)} />
-        ) : (
-          <QuizManager onSelectQuiz={setSelectedQuiz} />
-        )}
+        <Tabs defaultValue="dashboard" className="w-full">
+          <TabsList className="mb-6 w-full max-w-md">
+            <TabsTrigger value="dashboard" className="gap-2">
+              <LayoutDashboard className="h-4 w-4" />
+              Tableau de bord
+            </TabsTrigger>
+            <TabsTrigger value="quizzes" className="gap-2">
+              <Library className="h-4 w-4" />
+              Quizz
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="dashboard">
+            <AdminDashboard />
+          </TabsContent>
+          <TabsContent value="quizzes">
+            {selectedQuiz ? (
+              <QuestionManager quiz={selectedQuiz} onBack={() => setSelectedQuiz(null)} />
+            ) : (
+              <QuizManager onSelectQuiz={setSelectedQuiz} />
+            )}
+          </TabsContent>
+        </Tabs>
       </AdminLayout>
 
       {/* Reset Confirmation Dialog */}

@@ -110,6 +110,7 @@ function QuizPageContent({ quizId }: { quizId: string }) {
     try {
       await saveScore({
         userEmail: user.email,
+        userId: user.uid,
         quizId: quizResult.quiz.id,
         quizTitle: quizResult.quiz.title,
         score: quizResult.score,

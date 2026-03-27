@@ -4,6 +4,7 @@ import { db, isFirebaseConfigured } from "./firebase"
 export interface LeaderboardEntry {
   id: string
   userEmail: string
+  userId?: string
   quizId: string
   quizTitle: string
   score: number
@@ -14,6 +15,7 @@ export interface LeaderboardEntry {
 
 interface SaveScoreInput {
   userEmail: string
+  userId?: string
   quizId: string
   quizTitle: string
   score: number
@@ -33,6 +35,24 @@ export async function saveScore(input: SaveScoreInput) {
     ...input,
     percentage,
     createdAt: serverTimestamp(),
+  })
+}
+
+export async function getAllScores(): Promise<LeaderboardEntry[]> {
+  if (!isFirebaseConfigured || !db) {
+    return []
+  }
+
+  const snap = await getDocs(collection(db, LEADERBOARD_COLLECTION))
+  const entries = snap.docs.map((docSnap) => ({
+    id: docSnap.id,
+    ...(docSnap.data() as Omit<LeaderboardEntry, "id">),
+  }))
+
+  return entries.sort((a, b) => {
+    const ta = a.createdAt?.seconds ?? 0
+    const tb = b.createdAt?.seconds ?? 0
+    return tb - ta
   })
 }
 

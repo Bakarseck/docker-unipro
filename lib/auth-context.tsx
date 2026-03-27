@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, type User } from "firebase/auth"
 import { auth } from "./firebase"
+import { ensureUserProfile } from "./users"
 
 interface AuthContextType {
   user: User | null
@@ -27,6 +28,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
       setUser(nextUser)
       setIsLoading(false)
+      if (nextUser) {
+        void ensureUserProfile(nextUser).catch(() => {
+          console.error("Impossible d'enregistrer le profil utilisateur dans Firestore.")
+        })
+      }
     })
 
     return unsubscribe
